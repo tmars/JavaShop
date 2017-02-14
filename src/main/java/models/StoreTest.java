@@ -39,11 +39,38 @@ class StoreTest {
         });
     }
 
-    @org.junit.jupiter.api.Test(expected=CarNotFoundException.class)
-    void sellCar() {
+    @org.junit.jupiter.api.Test
+    void sellCar() throws CarNotFoundException {
         Store store = new Store();
-//        store.createCar(100, "Lada", "ABC");
+        assertThrows(CarNotFoundException.class, () -> {
+            store.sellCar("Lada", "Artem", "123");
+        });
+
+        store.createCar(100, "Lada", "ABC");
         store.sellCar("Lada", "Artem", "123");
+        assertTrue(store.getFreeCars().size() == 0);
+
+        Car car = new Car(100, "Lada", "ABC");
+        assertTrue(store.getOrders().stream().filter(
+                (order) -> order.getCar().getModel().equals("Lada")
+                    && order.getCar().getRegNum().equals("ABC")
+                    && order.getCar().getPrice() == 100
+            ).count() == 1
+        );
+
+        assertTrue(store.getContractList().size() == 1);
+        assertTrue(store.getContractList().values().stream().filter(
+                (client) -> client.getFullname().equals("Artem")
+                    && client.getPhoneNumber().equals("123")
+            ).count() == 1
+        );
+    }
+
+    @org.junit.jupiter.api.Test
+    void getContractList() {
+        Store store = new Store();
+        assertNotNull(store.getContractList());
+        assertTrue(store.getContractList().size() == 0);
     }
 
     @org.junit.jupiter.api.Test

@@ -1,6 +1,8 @@
 package models;
 
 import datamanager.DataManager;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.*;
@@ -10,12 +12,17 @@ import java.util.*;
  */
 public class Store {
 
-    private HashMap<Order, Client> contractList = new HashMap<>(256);
-    private HashSet<Car> cars = new HashSet<>(256);
-    private HashSet<Client> clients = new HashSet<>();
+    private HashMap<Order, Client> contractList = new HashMap<Order, Client>(256);
+    private HashSet<Car> cars = new HashSet<Car>(256);
+    private HashSet<Client> clients = new HashSet<Client>();
     private static final String FILE_CONTRACTS = "contracts.dat";
     private static final String FILE_CARS = "cars.dat";
     private static final String FILE_CLIENTS = "clients.dat";
+
+    private static Logger logger = Logger.getLogger(Store.class);
+    static {
+        BasicConfigurator.configure();
+    }
 
     public void createCar(int price, String model, String regNum) {
         Car car = new Car(price, model, regNum);
@@ -34,7 +41,9 @@ public class Store {
             }
         }
         if (car == null) {
-            throw new CarNotFoundException();
+            CarNotFoundException e = new CarNotFoundException();
+            logger.error("Машина не найдена: " + model, e);
+            throw e;
         } else {
             Random random = new Random();
             Order order = new Order(car, car.getPrice()*2, random.nextLong(), (short) 80);
@@ -44,10 +53,9 @@ public class Store {
     }
 
     public List<Order> getOrders() {
-        List<Order> list = new ArrayList<>();
+        List<Order> list = new ArrayList<Order>();
         for (Order order : contractList.keySet()) {
             list.add(order);
-//           System.out.println(order);
         }
 
         return list;
@@ -57,7 +65,6 @@ public class Store {
         List<Car> list = new ArrayList<Car>();
         for (Car car : cars) {
             list.add(car);
-//            System.out.println(car.getModel());
         }
 
         return list;
@@ -68,20 +75,20 @@ public class Store {
     }
 
     public void save() {
-        DataManager.serialize(clients, FILE_CLIENTS);
         DataManager.serialize(cars, FILE_CARS);
+        DataManager.serialize(clients, FILE_CLIENTS);
         DataManager.serialize(contractList, FILE_CONTRACTS);
     }
 
     public void recover() {
-        ArrayList<Serializable> list = new ArrayList<>();
+        ArrayList<Serializable> list = new ArrayList<Serializable>();
         DataManager.deserialize(list, FILE_CARS);
         for (Serializable car:
              list) {
             cars.add((Car) car);
         }
 
-        ArrayList<Serializable> list2 = new ArrayList<>();
+        ArrayList<Serializable> list2 = new ArrayList<Serializable>();
         DataManager.deserialize(list2, FILE_CLIENTS);
         for (Serializable client:
                 list2) {
@@ -89,5 +96,9 @@ public class Store {
         }
 
         DataManager.deserialize(contractList, FILE_CONTRACTS);
+    }
+
+    public Map<Order, Client> getContractList() {
+        return contractList;
     }
 }

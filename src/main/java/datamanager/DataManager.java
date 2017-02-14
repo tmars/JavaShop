@@ -1,6 +1,8 @@
 package datamanager;
 
 import models.Order;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.io.*;
 import java.util.Collection;
@@ -11,17 +13,21 @@ import java.util.Map;
  * Created by Марсель on 08.02.2017.
  */
 public class DataManager {
-
+    private static final Logger logger = Logger.getLogger(DataManager.class);
+    static {
+        PropertyConfigurator.configure("src/main/resources/log4j.properties");
+    }
     public static void serialize(Collection<? extends Serializable> list, String filename) {
-        for (Serializable object:
-             list) {
+        for (Serializable object: list) {
             try (FileOutputStream fos = new FileOutputStream(filename)) {
                 ObjectOutputStream bos = new ObjectOutputStream(fos);
                 bos.writeObject(object);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.error("file not found " + filename);
+//                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("io exception " + filename);
+//                e.printStackTrace();
             }
         }
     }
@@ -31,9 +37,11 @@ public class DataManager {
             ObjectOutputStream bos = new ObjectOutputStream(fos);
             bos.writeObject(map);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("file not found " + filename);
+//            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("io exception " + filename);
+//            e.printStackTrace();
         }
     }
 

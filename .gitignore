@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+/applog.txt
+/buffer.log
+/cars.dat
+/contracts.dat
+/clients.dat
+/src/main/resources/emailconf.xml
+/.idea/
+/target/
